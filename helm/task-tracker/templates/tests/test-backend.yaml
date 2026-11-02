@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-test-backend
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: curl
+      image: curlimages/curl:8.10.1
+      command: ["curl", "-sf", "http://{{ include "task-tracker.fullname" . }}-backend-svc:{{ .Values.config.appPort }}/api/status"]
+      resources:
+        requests: {cpu: 50m, memory: 64Mi}
+        limits: {cpu: 100m, memory: 64Mi}

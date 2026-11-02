@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-db-headless
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "task-tracker.selector" (dict "ctx" . "tier" "database") | nindent 4 }}
+  ports:
+    - port: {{ .Values.config.dbPort }}
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-db
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "task-tracker.fullname" . }}-db-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "task-tracker.selector" (dict "ctx" . "tier" "database") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "task-tracker.selector" (dict "ctx" . "tier" "database") | nindent 8 }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: db
+          image: "{{ .Values.db.image.repository }}:{{ .Values.db.image.tag }}"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: {{ include "task-tracker.fullname" . }}-secret
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "task-tracker.fullname" . }}-config
+                  key: POSTGRES_DB
+          resources:
+            {{- toYaml .Values.db.resources | nindent 12 }}
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.db.storage }}

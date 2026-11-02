@@ -1,0 +1,34 @@
+{{- if .Values.rbac.create }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-backend-sa
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-backend-role
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-backend-binding
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "task-tracker.fullname" . }}-backend-sa
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: {{ include "task-tracker.fullname" . }}-backend-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

@@ -1,0 +1,28 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "task-tracker.fullname" . }}-ingress
+  labels:
+    {{- include "task-tracker.labels" . | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "task-tracker.fullname" . }}-backend-svc
+                port:
+                  number: {{ .Values.config.appPort }}
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "task-tracker.fullname" . }}-frontend-svc
+                port:
+                  number: 8080
+{{- end }}

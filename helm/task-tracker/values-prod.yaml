@@ -1,0 +1,20 @@
+environment: prod
+
+config:
+  corsOrigin: http://prod.tasktracker.local
+
+backend:
+  replicaCount: 2
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 250m, memory: 384Mi}
+
+frontend:
+  replicaCount: 2
+
+ingress:
+  host: prod.tasktracker.local
+
+quota:
+  requestsCpu: "2"
+  pods: "12"

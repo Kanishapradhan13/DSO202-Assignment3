@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-headless
+spec:
+  clusterIP: None
+  selector:
+    app: dso202-db
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+spec:
+  serviceName: db-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dso202-db
+  template:
+    metadata:
+      labels:
+        app: dso202-db
+        tier: database
+    spec:
+      containers:
+        - name: db
+          image: sarojsanyasi/dso202-db:1.0
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+                name: dso202-secret
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name: dso202-config
+                  key: POSTGRES_DB
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          readinessProbe:
+            exec:
+              command: ["sh", "-c", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi

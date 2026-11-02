@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-svc
+  namespace: dso202-assignment-01
+  labels:
+    app: dso202-frontend
+    tier: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: dso202-frontend
+    tier: frontend
+  ports:
+    - port: 8080
+      targetPort: 8080

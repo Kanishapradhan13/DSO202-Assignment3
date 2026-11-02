@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: dso202-backend
+  ports:
+    - port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dso202-backend
+  template:
+    metadata:
+      labels:
+        app: dso202-backend
+        tier: backend
+    spec:
+      serviceAccountName: backend-sa
+      containers:
+        - name: backend
+          image: sarojsanyasi/dso202-backend:1.0
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: dso202-config
+            - secretRef:
+                name: dso202-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5

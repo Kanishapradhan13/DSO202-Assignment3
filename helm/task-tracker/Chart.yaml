@@ -1,0 +1,6 @@
+apiVersion: v2
+name: task-tracker
+description: 3-tier Task Tracker (Postgres StatefulSet, Node backend, nginx frontend) for DSO202
+type: application
+version: 0.1.0
+appVersion: "1.0"

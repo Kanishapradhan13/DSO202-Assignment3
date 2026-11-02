@@ -1,0 +1,9 @@
+{{ .Chart.Name }} {{ .Chart.AppVersion }} installed as "{{ .Release.Name }}" in namespace "{{ .Release.Namespace }}" ({{ .Values.environment }}).
+
+Check pods:
+  kubectl get pods -n {{ .Release.Namespace }}
+Run the chart test:
+  helm test {{ .Release.Name }} -n {{ .Release.Namespace }}
+{{- if .Values.ingress.enabled }}
+Open http://{{ .Values.ingress.host }}/ (map the host to the ingress address in /etc/hosts).
+{{- end }}

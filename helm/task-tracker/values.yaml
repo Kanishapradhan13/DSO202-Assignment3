@@ -1,0 +1,58 @@
+# Default values (dev-sized). Override with -f values-prod.yaml or --set.
+
+environment: dev
+
+config:
+  dbName: tasksdb
+  dbPort: "5432"
+  appPort: "8080"
+  corsOrigin: "*"
+  backendUrl: ""
+
+# Real deployments should pass these with --set or an external secret manager.
+secret:
+  dbUser: taskuser
+  dbPassword: ChangeMe123!
+
+db:
+  image:
+    repository: sarojsanyasi/dso202-db
+    tag: "1.0"
+  storage: 1Gi
+  resources:
+    requests: {cpu: 250m, memory: 256Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+
+backend:
+  replicaCount: 1
+  image:
+    repository: sarojsanyasi/dso202-backend
+    tag: "1.0"
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 250m, memory: 256Mi}
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: sarojsanyasi/dso202-frontend
+    tag: "1.0"
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {cpu: 200m, memory: 128Mi}
+
+ingress:
+  enabled: true
+  className: nginx
+  host: tasktracker.local
+
+rbac:
+  create: true
+
+quota:
+  enabled: true
+  requestsCpu: "1500m"
+  requestsMemory: 1536Mi
+  limitsCpu: "3"
+  limitsMemory: 3Gi
+  pods: "10"
