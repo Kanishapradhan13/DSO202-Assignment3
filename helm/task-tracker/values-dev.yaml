@@ -1,3 +1,7 @@
 environment: dev
+
+config:
+  backendUrl: http://helm-dev.tasktracker.local:8088
+
 ingress:
-  host: dev.tasktracker.local
+  host: helm-dev.tasktracker.local

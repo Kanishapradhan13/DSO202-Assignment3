@@ -7,6 +7,8 @@ config:
   dbPort: "5432"
   appPort: "8080"
   corsOrigin: "*"
+  # Must be the browser-reachable address of the backend (the Ingress origin);
+  # an empty value makes the frontend fall back to http://localhost:8080.
   backendUrl: ""
 
 # Real deployments should pass these with --set or an external secret manager.

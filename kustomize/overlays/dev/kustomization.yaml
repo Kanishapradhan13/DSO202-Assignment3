@@ -17,6 +17,7 @@ configMapGenerator:
     literals:
       - ENVIRONMENT=dev
       - DB_HOST=dev-db-headless
+      - BACKEND_URL=http://dev.tasktracker.local:8088
 
 patches:
   - target:

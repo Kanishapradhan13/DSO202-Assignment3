@@ -1,7 +1,8 @@
 environment: prod
 
 config:
-  corsOrigin: http://prod.tasktracker.local
+  corsOrigin: http://helm-prod.tasktracker.local:8088
+  backendUrl: http://helm-prod.tasktracker.local:8088
 
 backend:
   replicaCount: 2
@@ -13,7 +14,7 @@ frontend:
   replicaCount: 2
 
 ingress:
-  host: prod.tasktracker.local
+  host: helm-prod.tasktracker.local
 
 quota:
   requestsCpu: "2"
